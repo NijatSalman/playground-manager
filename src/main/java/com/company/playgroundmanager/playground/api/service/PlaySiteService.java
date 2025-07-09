@@ -1,5 +1,7 @@
 package com.company.playgroundmanager.playground.api.service;
 
+import com.company.playgroundmanager.common.model.config.exception.PlayGroundValidationException;
+import com.company.playgroundmanager.common.model.config.exception.RecordNotFoundException;
 import com.company.playgroundmanager.infrastructure.persistence.InMemoryPlaySiteRepository;
 import com.company.playgroundmanager.playground.api.model.*;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +25,7 @@ public class PlaySiteService {
 
         if (playSiteRepository.exists(request.getName())) {
             log.warn("Play site with name '{}' already exists", request.getName());
-            throw new RuntimeException("Play site already exists with name: " + request.getName());
+            throw new RecordNotFoundException("Play site already exists with name: " + request.getName());
         }
 
         playSiteRepository.save(playSite);
@@ -38,7 +40,7 @@ public class PlaySiteService {
         PlaySite playSite = playSiteRepository.findByName(name)
                 .orElseThrow(() -> {
                     log.error("Play site not found for update with name: {}", name);
-                    return new RuntimeException("Play site not found for name " + name);
+                    return new RecordNotFoundException("Play site not found for name " + name);
                 });
 
         playSite.setName(request.getName());
@@ -62,7 +64,7 @@ public class PlaySiteService {
         PlaySite playSite = playSiteRepository.findByName(name)
                 .orElseThrow(() -> {
                     log.error("Play site not found with name: {}", name);
-                    return new RuntimeException("Play site not found for name: " + name);
+                    return new RecordNotFoundException("Play site not found for name: " + name);
                 });
         return playSiteMapper.toResponse(playSite);
     }
@@ -71,7 +73,7 @@ public class PlaySiteService {
         log.info("Deleting play site with name: {}", name);
         if (!playSiteRepository.exists(name)) {
             log.warn("Attempted to delete non-existent play site: {}", name);
-            throw new RuntimeException("Play site not found for name: " + name);
+            throw new RecordNotFoundException("Play site not found for name: " + name);
         }
         playSiteRepository.delete(name);
         log.debug("Successfully deleted play site '{}'", name);
