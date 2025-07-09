@@ -1,9 +1,7 @@
 package com.company.playgroundmanager.playground.api.service;
 
 import com.company.playgroundmanager.infrastructure.persistence.InMemoryPlaySiteRepository;
-import com.company.playgroundmanager.playground.api.model.PlaySite;
-import com.company.playgroundmanager.playground.api.model.PlaySiteRequest;
-import com.company.playgroundmanager.playground.api.model.PlaySiteResponse;
+import com.company.playgroundmanager.playground.api.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -77,5 +75,30 @@ public class PlaySiteService {
         }
         playSiteRepository.delete(name);
         log.debug("Successfully deleted play site '{}'", name);
+    }
+
+    public List<PlaySiteDetailResponse> getPlaySiteDetails() {
+        return playSiteRepository.findAll().stream()
+                .map(site -> PlaySiteDetailResponse.builder()
+                        .name(site.getName())
+                        .totalCapacity(site.getTotalCapacity())
+                        .currentKidCount(site.getCurrentKids().size())
+                        .waitingQueueSize(site.getWaitingQueue().size())
+                        .utilization(calculateUtilization(site))
+                        .currentKids(site.getCurrentKids().stream()
+                                .map(k -> Kid.builder()
+                                        .name(k.getName())
+                                        .age(k.getAge())
+                                        .ticketNumber(k.getTicketNumber())
+                                        .build())
+                                .collect(Collectors.toList()))
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    private double calculateUtilization(PlaySite site) {
+        int capacity = site.getTotalCapacity();
+        if (capacity == 0) return 0.0;
+        return (site.getCurrentKids().size() * 100.0) / capacity;
     }
 }

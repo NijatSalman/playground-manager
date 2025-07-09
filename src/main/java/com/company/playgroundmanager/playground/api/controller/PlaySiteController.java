@@ -1,5 +1,6 @@
 package com.company.playgroundmanager.playground.api.controller;
 
+import com.company.playgroundmanager.playground.api.model.PlaySiteDetailResponse;
 import com.company.playgroundmanager.playground.api.model.PlaySiteRequest;
 import com.company.playgroundmanager.playground.api.model.PlaySiteResponse;
 import com.company.playgroundmanager.playground.api.service.PlaySiteService;
@@ -46,5 +47,10 @@ public class PlaySiteController {
     public ResponseEntity<Void> delete(@PathVariable String name) {
         playSiteService.deletePlaySite(name);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/details")
+    public ResponseEntity<List<PlaySiteDetailResponse>> getAllDetails() {
+        return ResponseEntity.ok(playSiteService.getPlaySiteDetails());
     }
 }
