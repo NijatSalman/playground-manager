@@ -7,13 +7,12 @@ import com.company.playgroundmanager.playground.api.model.PlaySiteResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
 public class PlaySiteMapper {
 
-    public PlaySite toDomain(UUID id, PlaySiteRequest request) {
+    public PlaySite toDomain(PlaySiteRequest request) {
         List<Attraction> attractions = request.getAttractions().stream()
                 .map(dto -> Attraction.builder()
                         .type(dto.getType())
@@ -21,7 +20,6 @@ public class PlaySiteMapper {
                         .build())
                 .collect(Collectors.toList());
         return PlaySite.builder()
-                .id(id)
                 .name(request.getName())
                 .attractions(attractions)
                 .build();
@@ -36,7 +34,6 @@ public class PlaySiteMapper {
                 .collect(Collectors.toList());
 
         return PlaySiteResponse.builder()
-                .id(playSite.getId())
                 .name(playSite.getName())
                 .attractions(attractions)
                 .totalCapacity(playSite.getTotalCapacity())

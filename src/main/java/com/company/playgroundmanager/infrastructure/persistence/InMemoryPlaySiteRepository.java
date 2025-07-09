@@ -9,22 +9,22 @@ import java.util.concurrent.ConcurrentHashMap;
 @Repository
 public class InMemoryPlaySiteRepository {
 
-    private final Map<UUID, PlaySite> store = new ConcurrentHashMap<>();
+    private final Map<String, PlaySite> store = new ConcurrentHashMap<>();
 
     public void save(PlaySite playSite) {
-        store.put(playSite.getId(), playSite);
+        store.put(playSite.getName(), playSite);
     }
 
-    public Optional<PlaySite> findById(UUID id) {
-        return Optional.ofNullable(store.get(id));
+    public Optional<PlaySite> findByName(String name) {
+        return Optional.ofNullable(store.get(name.toLowerCase()));
     }
 
-    public void delete(UUID id) {
-        store.remove(id);
+    public void delete(String name) {
+        store.remove(name.toLowerCase());
     }
 
-    public boolean exists(UUID id) {
-        return store.containsKey(id);
+    public boolean exists(String name) {
+        return store.containsKey(name.toLowerCase());
     }
 
     public List<PlaySite> findAll() {

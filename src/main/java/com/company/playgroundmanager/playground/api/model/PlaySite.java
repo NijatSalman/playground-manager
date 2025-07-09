@@ -6,13 +6,11 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Data
 @Builder
 public class PlaySite {
-    private UUID id;
     private String name;
     private List<Attraction> attractions;
 
