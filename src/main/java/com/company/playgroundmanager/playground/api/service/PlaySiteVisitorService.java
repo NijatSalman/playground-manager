@@ -5,13 +5,12 @@ import com.company.playgroundmanager.common.model.config.exception.PlayGroundVal
 import com.company.playgroundmanager.common.model.config.exception.RecordNotFoundException;
 import com.company.playgroundmanager.infrastructure.persistence.InMemoryPlaySiteRepository;
 import com.company.playgroundmanager.infrastructure.persistence.InMemoryPlaySiteVisitorRepository;
-import com.company.playgroundmanager.playground.api.model.Kid;
-import com.company.playgroundmanager.playground.api.model.PlaySite;
-import com.company.playgroundmanager.playground.api.model.PlaySiteVisitorRequest;
-import com.company.playgroundmanager.playground.api.model.VisitorRecord;
+import com.company.playgroundmanager.playground.api.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 
 @Slf4j
@@ -21,9 +20,8 @@ public class PlaySiteVisitorService {
 
     private final InMemoryPlaySiteVisitorRepository visitorRepository;
     private final InMemoryPlaySiteRepository playSiteRepository;
+    private final PlaySiteQueueManager playSiteQueueManager;
 
-    private static final String REMOVED_FROM_SITE = "Removed from play site";
-    private static final String REMOVED_FROM_QUEUE = "Removed from waiting queue";
     private static final String KID_ADDED = "Kid added to play site";
     private static final String KID_IN_QUEUE = "Play site is full. Kid added to waiting queue";
     private static final String KID_REFUSED = "Play site is full and kid refused to wait";
@@ -54,25 +52,55 @@ public class PlaySiteVisitorService {
         return registerKid(playSite, kid, request, playSiteName);
     }
 
-    public String removeByTicketNumber(String ticketNumber) {
+    public RemoveVisitorResponse removeByTicketNumber(String ticketNumber) {
         VisitorRecord record = visitorRepository.find(ticketNumber)
                 .orElseThrow(() -> {
                     log.warn("No visitor found with ticket: {}", ticketNumber);
-                    return new RecordNotFoundException(ticketNumber);
+                    return new RecordNotFoundException("Visitor not found with ticket: " + ticketNumber);
                 });
 
         PlaySite playSite = getPlaySiteOrThrow(record.getPlaySiteName());
 
-        boolean wasVisitorRemoved = removeKidFromPlaySite(playSite, ticketNumber)
-                || removeKidFromQueue(playSite, ticketNumber);
+        boolean removedFromPlaySite = removeKidFromPlaySite(playSite, ticketNumber);
+        boolean removedFromQueue = !removedFromPlaySite && removeKidFromQueue(playSite, ticketNumber);
 
-        if (wasVisitorRemoved) {
-            visitorRepository.delete(ticketNumber);
-            return record.isInQueue() ? REMOVED_FROM_QUEUE : REMOVED_FROM_SITE;
+        if (!removedFromPlaySite && !removedFromQueue) {
+            log.warn("Visitor with ticket '{}' was registered but not found in play site data", ticketNumber);
+            throw new IllegalStateException("Visitor was registered but not present in play site data");
         }
 
-        log.warn("Visitor with ticket '{}' was registered but not found in play site data", ticketNumber);
-        throw new IllegalStateException("Visitor was registered but not present in play site data");
+        visitorRepository.delete(ticketNumber);
+
+        Kid promotedKid = null;
+        if (removedFromPlaySite) {
+            Optional<Kid> promoted = playSiteQueueManager.promoteNextKidIfSlotAvailable(playSite);
+            if (promoted.isPresent()) {
+                promotedKid = promoted.get();
+                visitorRepository.save(VisitorRecord.builder()
+                        .ticketNumber(promotedKid.getTicketNumber().getValue())
+                        .kidName(promotedKid.getName())
+                        .kidAge(promotedKid.getAge())
+                        .playSiteName(playSite.getName())
+                        .inQueue(false)
+                        .build());
+            }
+        }
+
+        Kid removedVisitor = Kid.builder()
+                .name(record.getKidName())
+                .age(record.getKidAge())
+                .ticketNumber(new TicketNumber(record.getTicketNumber()))
+                .build();
+
+        return RemoveVisitorResponse.builder()
+                .wasInQueue(record.isInQueue())
+                .removedKid(removedVisitor)
+                .promotedKid(promotedKid)
+                .build();
+    }
+
+    public int getTotalVisitorCount() {
+        return visitorRepository.findAll().size();
     }
 
 
