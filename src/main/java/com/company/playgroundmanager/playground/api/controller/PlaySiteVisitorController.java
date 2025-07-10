@@ -2,10 +2,14 @@ package com.company.playgroundmanager.playground.api.controller;
 
 import com.company.playgroundmanager.playground.api.model.PlaySiteVisitorRequest;
 import com.company.playgroundmanager.playground.api.model.RemoveVisitorResponse;
+import com.company.playgroundmanager.playground.api.model.VisitorRecord;
 import com.company.playgroundmanager.playground.api.service.PlaySiteVisitorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/internal-api/v1")
@@ -25,6 +29,11 @@ public class PlaySiteVisitorController {
     public ResponseEntity<RemoveVisitorResponse> removeVisitor(@PathVariable("ticketNumber") String ticketNumber) {
         RemoveVisitorResponse result = playSiteVisitorService.removeByTicketNumber(ticketNumber);
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/visitors")
+    public ResponseEntity<Map<String, List<VisitorRecord>>> getVisitorsGroupedByPlaySite() {
+        return ResponseEntity.ok(playSiteVisitorService.getVisitorsGroupedByPlaySite());
     }
 
     @GetMapping("/visitors/count")

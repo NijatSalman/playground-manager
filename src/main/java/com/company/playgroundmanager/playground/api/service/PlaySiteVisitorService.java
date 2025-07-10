@@ -10,7 +10,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -101,6 +104,11 @@ public class PlaySiteVisitorService {
 
     public int getTotalVisitorCount() {
         return visitorRepository.findAll().size();
+    }
+
+    public Map<String, List<VisitorRecord>> getVisitorsGroupedByPlaySite() {
+        return visitorRepository.findAll().values().stream()
+                .collect(Collectors.groupingBy(VisitorRecord::getPlaySiteName));
     }
 
 
