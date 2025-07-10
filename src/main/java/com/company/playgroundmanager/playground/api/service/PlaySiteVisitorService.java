@@ -15,6 +15,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.company.playgroundmanager.playground.api.model.PlaySiteConstant.KID_ADDED;
+import static com.company.playgroundmanager.playground.api.model.PlaySiteConstant.KID_REFUSED;
+import static com.company.playgroundmanager.playground.api.model.PlaySiteConstant.KID_IN_QUEUE;
 
 @Slf4j
 @Service
@@ -24,10 +27,7 @@ public class PlaySiteVisitorService {
     private final InMemoryPlaySiteVisitorRepository visitorRepository;
     private final InMemoryPlaySiteRepository playSiteRepository;
     private final PlaySiteQueueManager playSiteQueueManager;
-
-    private static final String KID_ADDED = "Kid added to play site";
-    private static final String KID_IN_QUEUE = "Play site is full. Kid added to waiting queue";
-    private static final String KID_REFUSED = "Play site is full and kid refused to wait";
+    private final VisitorMapper visitorMapper;
 
     public String addKid(String playSiteName, PlaySiteVisitorRequest request) {
         validateTicketUniqueness(request.getTicketNumber());
@@ -79,21 +79,11 @@ public class PlaySiteVisitorService {
             Optional<Kid> promoted = playSiteQueueManager.promoteNextKidIfSlotAvailable(playSite);
             if (promoted.isPresent()) {
                 promotedKid = promoted.get();
-                visitorRepository.save(VisitorRecord.builder()
-                        .ticketNumber(promotedKid.getTicketNumber().getValue())
-                        .kidName(promotedKid.getName())
-                        .kidAge(promotedKid.getAge())
-                        .playSiteName(playSite.getName())
-                        .inQueue(false)
-                        .build());
+                visitorRepository.save(visitorMapper.toVisitorRecord(promotedKid, playSite.getName(), false));
             }
         }
 
-        Kid removedVisitor = Kid.builder()
-                .name(record.getKidName())
-                .age(record.getKidAge())
-                .ticketNumber(new TicketNumber(record.getTicketNumber()))
-                .build();
+        Kid removedVisitor = visitorMapper.toKid(record);
 
         return RemoveVisitorResponse.builder()
                 .wasInQueue(record.isInQueue())
