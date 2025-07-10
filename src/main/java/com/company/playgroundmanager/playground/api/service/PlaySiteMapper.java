@@ -19,6 +19,7 @@ public class PlaySiteMapper {
                         .capacity(dto.getCapacity())
                         .build())
                 .collect(Collectors.toList());
+        System.out.println(attractions);
         return PlaySite.builder()
                 .name(request.getName())
                 .attractions(attractions)

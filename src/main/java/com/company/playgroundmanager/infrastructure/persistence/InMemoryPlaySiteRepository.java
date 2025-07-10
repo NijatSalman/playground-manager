@@ -16,15 +16,15 @@ public class InMemoryPlaySiteRepository {
     }
 
     public Optional<PlaySite> findByName(String name) {
-        return Optional.ofNullable(store.get(name.toLowerCase()));
+        return Optional.ofNullable(store.get(name));
     }
 
     public void delete(String name) {
-        store.remove(name.toLowerCase());
+        store.remove(name);
     }
 
     public boolean exists(String name) {
-        return store.containsKey(name.toLowerCase());
+        return store.containsKey(name);
     }
 
     public List<PlaySite> findAll() {
