@@ -1,7 +1,6 @@
 package com.company.playgroundmanager.playground.api.service;
 
-import com.company.playgroundmanager.common.model.config.exception.PlayGroundValidationException;
-import com.company.playgroundmanager.common.model.config.exception.RecordNotFoundException;
+import com.company.playgroundmanager.common.config.exception.RecordNotFoundException;
 import com.company.playgroundmanager.infrastructure.persistence.InMemoryPlaySiteRepository;
 import com.company.playgroundmanager.playground.api.model.*;
 import lombok.RequiredArgsConstructor;

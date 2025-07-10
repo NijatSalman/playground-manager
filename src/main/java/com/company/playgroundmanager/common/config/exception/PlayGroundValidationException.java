@@ -1,4 +1,4 @@
-package com.company.playgroundmanager.common.model.config.exception;
+package com.company.playgroundmanager.common.config.exception;
 
 public class PlayGroundValidationException extends RuntimeException {
     public PlayGroundValidationException(String message) {

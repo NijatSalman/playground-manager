@@ -1,4 +1,4 @@
-package com.company.playgroundmanager.common.model.config;
+package com.company.playgroundmanager.common.config.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.models.OpenAPI;
