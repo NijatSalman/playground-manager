@@ -4,6 +4,7 @@ import com.company.playgroundmanager.common.config.exception.PlayGroundValidatio
 import com.company.playgroundmanager.common.config.exception.RecordNotFoundException;
 import com.company.playgroundmanager.common.model.AttractionType;
 import com.company.playgroundmanager.common.model.TicketNumber;
+import com.company.playgroundmanager.playground.api.model.VisitorRecord;
 import com.company.playgroundmanager.infrastructure.persistence.InMemoryPlaySiteRepository;
 import com.company.playgroundmanager.infrastructure.persistence.InMemoryPlaySiteVisitorRepository;
 import com.company.playgroundmanager.playground.api.model.*;

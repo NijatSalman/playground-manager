@@ -1,6 +1,6 @@
 package com.company.playgroundmanager.common.config.exception;
 
-import com.company.playgroundmanager.playground.api.model.CustomErrorResponse;
+import com.company.playgroundmanager.common.model.CustomErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

@@ -1,4 +1,4 @@
-package com.company.playgroundmanager.playground.api.model;
+package com.company.playgroundmanager.common.model;
 
 import lombok.Builder;
 import lombok.Getter;
